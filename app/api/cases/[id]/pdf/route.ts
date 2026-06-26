@@ -73,7 +73,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 
   const buffer = await renderToBuffer(
-    React.createElement(CaseSummaryPDF, { c: caseData, generatedAt })
+    React.createElement(CaseSummaryPDF, { c: caseData, generatedAt }) as React.ReactElement<any>
   )
 
   return new NextResponse(buffer, {
