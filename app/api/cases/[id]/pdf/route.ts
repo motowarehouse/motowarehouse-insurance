@@ -76,7 +76,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     React.createElement(CaseSummaryPDF, { c: caseData, generatedAt }) as React.ReactElement<any>
   )
 
-  return new NextResponse(buffer, {
+  return new NextResponse(new Uint8Array(buffer), {
     status: 200,
     headers: {
       'Content-Type': 'application/pdf',
