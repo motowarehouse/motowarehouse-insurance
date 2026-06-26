@@ -1,0 +1,185 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Brand {
+  SYM
+  CFMOTO
+  OTHER
+}
+
+enum Status {
+  INTAKE
+  AWAITING_ESTIMATOR
+  ESTIMATOR_VISIT
+  QUOTE_SENT
+  QUOTE_APPROVED
+  AWAITING_AUTHORIZATION
+  AUTHORIZED
+  IN_REPAIR
+  COMPLETED
+  REJECTED
+  ON_HOLD
+}
+
+model Case {
+  id                      String    @id @default(cuid())
+  plate                   String    @unique
+  entryDate               DateTime  @default(now())
+  brand                   Brand
+  model                   String
+  mileage                 Int?
+  vehicleRegistrationDate DateTime?
+  status                  Status    @default(INTAKE)
+  statusChangedAt         DateTime  @default(now())
+  notes                   String?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  owner               Owner?
+  customerInsurance   CustomerInsurance?
+  thirdPartyInsurance ThirdPartyInsurance?
+  internal            InternalData?
+  files               CaseFile[]
+  activities          Activity[]
+  caseNotes           CaseNote[]
+}
+
+model Owner {
+  id      String  @id @default(cuid())
+  caseId  String  @unique
+  case    Case    @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  name    String?
+  address String?
+  phone   String?
+}
+
+model CustomerInsurance {
+  id           String            @id @default(cuid())
+  caseId       String            @unique
+  case         Case              @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  company      String?
+  phone        String?
+  email        String?
+  estimator    String?
+  officer      String?
+  caseNumber   String?
+  companyRef   InsuranceCompany? @relation("CustCompany", fields: [companyId], references: [id], onDelete: SetNull)
+  companyId    String?
+  officerRef   Officer?          @relation("CustOfficer", fields: [officerId], references: [id], onDelete: SetNull)
+  officerId    String?
+  estimatorRef Estimator?        @relation("CustEstimator", fields: [estimatorId], references: [id], onDelete: SetNull)
+  estimatorId  String?
+}
+
+model ThirdPartyInsurance {
+  id           String            @id @default(cuid())
+  caseId       String            @unique
+  case         Case              @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  company      String?
+  phone        String?
+  email        String?
+  estimator    String?
+  officer      String?
+  caseNumber   String?
+  companyRef   InsuranceCompany? @relation("TPCompany", fields: [companyId], references: [id], onDelete: SetNull)
+  companyId    String?
+  officerRef   Officer?          @relation("TPOfficer", fields: [officerId], references: [id], onDelete: SetNull)
+  officerId    String?
+  estimatorRef Estimator?        @relation("TPEstimator", fields: [estimatorId], references: [id], onDelete: SetNull)
+  estimatorId  String?
+}
+
+model InternalData {
+  id                 String    @id @default(cuid())
+  caseId             String    @unique
+  case               Case      @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  estimateNumber     String?
+  invoiceNumber      String?
+  sentForPaymentDate DateTime?
+  paymentDetails     String?
+}
+
+model CaseFile {
+  id         String   @id @default(cuid())
+  caseId     String
+  case       Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  url        String
+  r2Key      String
+  name       String
+  mimeType   String
+  size       Int?
+  uploadedAt DateTime @default(now())
+}
+
+model Activity {
+  id        String   @id @default(cuid())
+  caseId    String
+  case      Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  action    String
+  details   String?
+  createdAt DateTime @default(now())
+}
+
+model InsuranceCompany {
+  id                   String                @id @default(cuid())
+  name                 String
+  phone                String?
+  email                String?
+  notes                String?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  officers             Officer[]
+  estimatorLinks       EstimatorCompany[]
+  customerInsurances   CustomerInsurance[]   @relation("CustCompany")
+  thirdPartyInsurances ThirdPartyInsurance[] @relation("TPCompany")
+}
+
+model Officer {
+  id                   String                @id @default(cuid())
+  name                 String
+  phone                String?
+  email                String?
+  companyId            String
+  company              InsuranceCompany      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  customerInsurances   CustomerInsurance[]   @relation("CustOfficer")
+  thirdPartyInsurances ThirdPartyInsurance[] @relation("TPOfficer")
+}
+
+model Estimator {
+  id                   String                @id @default(cuid())
+  name                 String
+  phone                String?
+  email                String?
+  notes                String?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  companyLinks         EstimatorCompany[]
+  customerInsurances   CustomerInsurance[]   @relation("CustEstimator")
+  thirdPartyInsurances ThirdPartyInsurance[] @relation("TPEstimator")
+}
+
+model CaseNote {
+  id        String   @id @default(cuid())
+  caseId    String
+  case      Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EstimatorCompany {
+  estimatorId String
+  companyId   String
+  estimator   Estimator        @relation(fields: [estimatorId], references: [id], onDelete: Cascade)
+  company     InsuranceCompany @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@id([estimatorId, companyId])
+}
