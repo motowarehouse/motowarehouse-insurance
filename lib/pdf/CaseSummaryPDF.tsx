@@ -6,15 +6,17 @@ import {
   StyleSheet,
   Font,
 } from '@react-pdf/renderer'
+import path from 'path'
 
-// Register Lato fonts
+// Register Lato fonts using absolute filesystem paths (required for server-side rendering)
+const fontsDir = path.join(process.cwd(), 'public', 'fonts')
 Font.register({
   family: 'Lato',
   fonts: [
-    { src: '/fonts/Lato-Regular.ttf', fontWeight: 400 },
-    { src: '/fonts/Lato-Bold.ttf', fontWeight: 700 },
-    { src: '/fonts/Lato-Black.ttf', fontWeight: 900 },
-    { src: '/fonts/Lato-Light.ttf', fontWeight: 300 },
+    { src: path.join(fontsDir, 'Lato-Regular.ttf'), fontWeight: 400 },
+    { src: path.join(fontsDir, 'Lato-Bold.ttf'), fontWeight: 700 },
+    { src: path.join(fontsDir, 'Lato-Black.ttf'), fontWeight: 900 },
+    { src: path.join(fontsDir, 'Lato-Light.ttf'), fontWeight: 300 },
   ],
 })
 

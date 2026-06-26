@@ -7,6 +7,7 @@ import AgeIndicator from '@/components/cases/AgeIndicator'
 import StatusWorkflow from '@/components/cases/StatusWorkflow'
 import CaseDetailSections from '@/components/cases/CaseDetailSections'
 import FileUploadSection from '@/components/cases/FileUploadSection'
+import DocumentsSection from '@/components/cases/DocumentsSection'
 import ActivityLog from '@/components/cases/ActivityLog'
 import QuickNotes from '@/components/cases/QuickNotes'
 import MessageTemplates from '@/components/cases/MessageTemplates'
@@ -84,8 +85,11 @@ export default async function CaseDetailPage({ params }: { params: { id: string 
       {/* Data sections */}
       <CaseDetailSections c={c} />
 
-      {/* Files */}
-      <FileUploadSection caseId={c.id} files={c.files} />
+      {/* Typed documents */}
+      <DocumentsSection caseId={c.id} files={c.files.filter(f => f.docType !== null) as any} />
+
+      {/* General files & photos */}
+      <FileUploadSection caseId={c.id} files={c.files.filter(f => f.docType === null)} />
 
       {/* Quick Notes */}
       <QuickNotes caseId={c.id} />

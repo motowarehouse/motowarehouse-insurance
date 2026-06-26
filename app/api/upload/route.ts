@@ -10,6 +10,7 @@ const UploadRequestSchema = z.object({
   filename: z.string(),
   contentType: z.string(),
   size: z.number().optional(),
+  docType: z.enum(['QUOTE', 'INVOICE', 'DISCHARGE_RECEIPT', 'REPAIR_COMMAND']).optional().nullable(),
 })
 
 // Step 1: Get a pre-signed upload URL
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
 
-  const { caseId, filename, contentType, size } = parsed.data
+  const { caseId, filename, contentType, size, docType } = parsed.data
 
   // Verify case exists
   const c = await prisma.case.findUnique({ where: { id: caseId } })
@@ -43,6 +44,7 @@ export async function POST(request: NextRequest) {
       name: filename,
       mimeType: contentType,
       size: size ?? null,
+      docType: docType ?? null,
     },
   })
 

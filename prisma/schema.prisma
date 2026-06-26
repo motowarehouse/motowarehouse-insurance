@@ -7,6 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum DocType {
+  QUOTE
+  INVOICE
+  DISCHARGE_RECEIPT
+  REPAIR_COMMAND
+}
+
 enum Brand {
   SYM
   CFMOTO
@@ -114,6 +121,7 @@ model CaseFile {
   name       String
   mimeType   String
   size       Int?
+  docType    DocType?
   uploadedAt DateTime @default(now())
 }
 
